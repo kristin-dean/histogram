@@ -17,8 +17,8 @@ var drawInitial = function(data,day)
 
   var screen =
   {
-    height:300,
-    width:300
+    height:400,
+    width:400
   };
 
   var svg = d3.select("svg")
