@@ -23,15 +23,16 @@ var drawInitial = function(data,day)
     top:10,
     bottom:10
   }
-var distribution = data.quizes;
 
 var quizGrades = d3.range(data.length)
-                  .map(function(d) {return distribution;});
+                   .map(function(d) {return data[d].quizes[day].grade;});
+
 console.log(quizGrades);
+console.log("array should be above");
 
   var width = 500 - margins.left - margins.right;
   var height = 500 - margins.top - margins.bottom;
-  var barWidth = width / students.length;
+  var barWidth = width / data.length;
 
   var xScale = d3.scaleLinear()
                  .domain([0,100])
@@ -40,7 +41,8 @@ console.log(quizGrades);
 
   var yScale = d3.scaleLinear()
                  .domain([0,100])
-                 .range([height,0]);
+                 .range([height,0])
+                 .nice();
 
   var binMaker=d3.histogram()
                  .domain(xScale.domain())
@@ -50,15 +52,15 @@ console.log(quizGrades);
 
 
   svg.selectAll("rect")
-     .data(students)
+     .data(quizGrades)
      .enter()
      .append("rect")
      .attr("x", function(d,i) {
-       return xScale(i);})
+       return xScale(d.x0);})
      .attr("y", function (d,i) {
        return height - yScale(0);})
-     .attr("width", barWidth)
+     .attr("width", function(d){
+       return xScale(d.x1-.1)-xScale(d.x0);})
      .attr("height", height)
-     .attr("fill", function(d) {
-       return colors(d.name);})
+     .attr("fill", "black");
 }
