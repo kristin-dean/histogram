@@ -78,9 +78,12 @@ console.log("Grades for day "+ data[0].quizes[day].day + " above");
 
   var bins = binMaker(quizGrades);
 
+  var percentage = function(d){
+      return d.length / quizGrades.length;
+  };
+
   var yScale = d3.scaleLinear()
-                 .domain([0,d3.max(bins, function(d){
-                   return d.length;})])
+                 .domain([0,1])
                  .range([height,0])
                  .nice();
 
@@ -91,11 +94,11 @@ console.log("Grades for day "+ data[0].quizes[day].day + " above");
      .attr("x", function(d) {
        return xScale(d.x0);})
      .attr("y", function (d) {
-       return yScale(d.length);})
+       return yScale(percentage(d));})
      .attr("width", function(d){
        return xScale(d.x1-.1)-xScale(d.x0);})
      .attr("height", function(d){
-       return height - yScale(d.length);})
+       return height - yScale(percentage(d));})
      .attr("fill", "blue")
      .attr("transform","translate("+ margins.left + "," + margins.top + ")");
 
@@ -131,6 +134,7 @@ var updateChart = function(data,day)
                      .map(function(d) {return data[d].quizes[day].grade;});
   var whatDay = d3.range(data.length)
                      .map(function(d) {return data[d].quizes[day].day;});
+                     console.log(whatDay.length);
   var dayNumber = whatDay[0];
   //var dayTitle = quizGrades.forEach(function(d)
   //  {return d.day;});
@@ -172,13 +176,17 @@ var updateChart = function(data,day)
 
   var bins = binMaker(quizGrades);
 
+
+    var percentage = function(d){
+        return d.length / quizGrades.length;};
+
   var yScale = d3.scaleLinear()
-                 .domain([0,d3.max(bins, function(d){
-                   return d.length;})])
+                 .domain([0,1])
                  .range([height,0])
                  .nice();
 
   console.log(bins);
+
 
   svg.selectAll("rect")
      .data(bins)
@@ -187,11 +195,11 @@ var updateChart = function(data,day)
      .attr("x", function(d) {
         return xScale(d.x0);})
      .attr("y", function (d) {
-        return yScale(d.length);})
+        return yScale(percentage(d));})
      .attr("width", function(d){
         return xScale(d.x1-.1)-xScale(d.x0);})
      .attr("height", function(d){
-        return height - yScale(d.length);})
+        return height - yScale(percentage(d));})
      .attr("fill", "blue")
      .attr("transform","translate("+ margins.left + "," + margins.top + ")");
 
@@ -214,9 +222,8 @@ var updateChart = function(data,day)
         .attr("transform","translate(" + margins.left + "," + (margins.top + height) + ")")
         .attr("id", "xAxis");
 
-}
+};
 
-// how do we update the yAxis to change according to the data for the next day?
 // how do we efficiently create 38 buttons for each day?
 // how do we pass a function with a day number and make it display the right histogram?
 // how do we deal days where there weren't quizzes?
