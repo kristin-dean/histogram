@@ -193,4 +193,3 @@ var updateChart = function(data,day)
         .attr("transform","translate(" + margins.left + "," + (margins.top + height) + ")");
 */
 }
-
