@@ -139,6 +139,7 @@ var updateChart = function(data,day)
   //  {return d.day;});
   //console.log(dayTitle);
   //dayHeader.text("Day " + )
+
     var dayHeader = d3.select("h2");
     dayHeader.text("Day " + (parseInt(dayNumber)));
 
