@@ -50,24 +50,30 @@ var whatDay = d3.range(data.length)
 var howManyDays = d3.range(data.length)
                     .map(function(d) {return data[d]});
 var dayNumbers = howManyDays[0].quizes;
-console.log(dayNumbers);
+var numbers = d3.range(dayNumbers.length)
+                .map(function(d) {return dayNumbers[d].day});
 
-/*var quizDays = d3.range(dayNumbers.length)
-                .map(function(d,i,dayNumbers) {return d.day});*/
-var quizDays = dayNumbers.forEach(function(d){
-  return d.day;});
-//console.log(quizDays);
+var buttonLand = d3.select("body");
+
+buttonLand.selectAll("button")
+          .data(numbers)
+          .enter()
+          .append("button")
+          .attr("label", function(d) {
+            return "Day " + d})
+          .attr("width", "20px")
+          .attr("height", "20px");
+
 
 //**************************************************************************//
 
-console.log(quizGrades);
-console.log("Grades for day "+ data[0].quizes[day].day + " above");
+console.log("Grades for day " + data[0].quizes[day].day + ": " + quizGrades);
 
   var width = screen.width - margins.left - margins.right;
   var height = screen.height - margins.top - margins.bottom;
 
   var xScale = d3.scaleLinear()
-                 .domain([0,10])
+                 .domain([0,11])
                  .range([0,width])
                  .nice();
 
@@ -96,19 +102,13 @@ console.log("Grades for day "+ data[0].quizes[day].day + " above");
      .attr("y", function (d) {
        return yScale(percentage(d));})
      .attr("width", function(d){
-       return xScale(d.x1-.1)-xScale(d.x0);})
+       return (width / bins.length)-.2;})
      .attr("height", function(d){
        return height - yScale(percentage(d));})
      .attr("fill", "blue")
      .attr("transform","translate("+ margins.left + "," + margins.top + ")");
 
 //**************************************************************************//
-svg.selectAll("text")
-   .data();
-
-
-  console.log(bins);
-
 
 //**************************************************************************//
 
@@ -134,7 +134,6 @@ var updateChart = function(data,day)
                      .map(function(d) {return data[d].quizes[day].grade;});
   var whatDay = d3.range(data.length)
                      .map(function(d) {return data[d].quizes[day].day;});
-                     console.log(whatDay.length);
   var dayNumber = whatDay[0];
   //var dayTitle = quizGrades.forEach(function(d)
   //  {return d.day;});
@@ -165,7 +164,7 @@ var updateChart = function(data,day)
   var height = screen.height - margins.top - margins.bottom;
 
   var xScale = d3.scaleLinear()
-                 .domain([0,10])
+                 .domain([0,11])
                  .range([0,width])
                  .nice();
 
@@ -185,9 +184,6 @@ var updateChart = function(data,day)
                  .range([height,0])
                  .nice();
 
-  console.log(bins);
-
-
   svg.selectAll("rect")
      .data(bins)
      .transition()
@@ -197,7 +193,7 @@ var updateChart = function(data,day)
      .attr("y", function (d) {
         return yScale(percentage(d));})
      .attr("width", function(d){
-        return xScale(d.x1-.1)-xScale(d.x0);})
+        return (width / bins.length)-.2;})
      .attr("height", function(d){
         return height - yScale(percentage(d));})
      .attr("fill", "blue")
