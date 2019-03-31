@@ -4,8 +4,7 @@ var gradesP = d3.json("data.json");
 //*****************************make promise********************************//
 gradesP.then(function(d)
 {
-  drawInitial(d,37);
-  updateChart(d,5);
+  drawInitial(d,0);
 },
 function(err)
 {
@@ -15,7 +14,6 @@ function(err)
 //**********************initialize histogram******************************//
 var drawInitial = function(data,day)
 {
-
   var screen =
   {
     height:400,
@@ -34,40 +32,38 @@ var drawInitial = function(data,day)
     bottom:10
   };
 
-  var whatDay = d3.range(data.length)
-                     .map(function(d) {return data[d].quizes[day].day;});
-  var dayNumber = whatDay[0];
-
-  var dayHeader = d3.select("h2");
-  dayHeader.text("Day " + (parseInt(dayNumber)));
-
-//*************************trying stuff out here****************************//
+//*******************working to get an array of all quiz days***************//
 var quizGrades = d3.range(data.length)
                    .map(function(d) {return data[d].quizes[day].grade;});
-
-var whatDay = d3.range(data.length)
-                .map(function(d) {return data[d].quizes[day].day;});
 var howManyDays = d3.range(data.length)
                     .map(function(d) {return data[d]});
 var dayNumbers = howManyDays[0].quizes;
 var numbers = d3.range(dayNumbers.length)
                 .map(function(d) {return dayNumbers[d].day});
 
+//******************** create the buttons **********************************//
 var buttonLand = d3.select("body");
 
 buttonLand.selectAll("button")
           .data(numbers)
           .enter()
           .append("button")
-          .attr("label", function(d) {
+          .attr("label", function(d,i) {
             return "Day " + d})
-          .attr("width", "20px")
-          .attr("height", "20px");
-
-
-//**************************************************************************//
-
-console.log("Grades for day " + data[0].quizes[day].day + ": " + quizGrades);
+          .text(function(d) {
+            return "Day " + d})
+          .on("click", function(d,i){
+          if(d<15) {
+              var day = (d-1);
+            }
+            else if (d>15 && d<30) {
+              var day = (d-2);
+            }
+            else if (d>30 && d<42) {
+              var day = (d-3);
+            }
+            updateChart(data,day,d)});
+//************************** foundations of chart ******************************//
 
   var width = screen.width - margins.left - margins.right;
   var height = screen.height - margins.top - margins.bottom;
@@ -77,7 +73,12 @@ console.log("Grades for day " + data[0].quizes[day].day + ": " + quizGrades);
                  .range([0,width])
                  .nice();
 
+  var yScale = d3.scaleLinear()
+                 .domain([0,.6])
+                 .range([height,0])
+                 .nice();
 
+//****************************histogram bins******************************//
   var binMaker=d3.histogram()
                  .domain(xScale.domain())
                  .thresholds(xScale.ticks(10));
@@ -88,11 +89,7 @@ console.log("Grades for day " + data[0].quizes[day].day + ": " + quizGrades);
       return d.length / quizGrades.length;
   };
 
-  var yScale = d3.scaleLinear()
-                 .domain([0,1])
-                 .range([height,0])
-                 .nice();
-
+//**************************** make rectangles*****************************//
   svg.selectAll("rect")
      .data(bins)
      .enter()
@@ -108,9 +105,7 @@ console.log("Grades for day " + data[0].quizes[day].day + ": " + quizGrades);
      .attr("fill", "blue")
      .attr("transform","translate("+ margins.left + "," + margins.top + ")");
 
-//**************************************************************************//
-
-//**************************************************************************//
+//************************** create axes *******************************//
 
      var yAxis = d3.axisLeft(yScale);
         svg.append("g")
@@ -127,22 +122,22 @@ console.log("Grades for day " + data[0].quizes[day].day + ": " + quizGrades);
         .attr("id", "xAxis");
 };
 
+
+
+
+
+
 //************************update histogram for specific day******************//
-var updateChart = function(data,day)
+var updateChart = function(data,day,dayButton)
 {
   var quizGrades = d3.range(data.length)
                      .map(function(d) {return data[d].quizes[day].grade;});
-  var whatDay = d3.range(data.length)
-                     .map(function(d) {return data[d].quizes[day].day;});
-  var dayNumber = whatDay[0];
-  //var dayTitle = quizGrades.forEach(function(d)
-  //  {return d.day;});
-  //console.log(dayTitle);
-  //dayHeader.text("Day " + )
 
+//********************** change title for day being displayed **************//
     var dayHeader = d3.select("h2");
-    dayHeader.text("Day " + (parseInt(dayNumber)));
+    dayHeader.text("Day " + dayButton);
 
+//*********************** screen basics ***********************************//
   var screen =
   {
     height:400,
@@ -169,7 +164,12 @@ var updateChart = function(data,day)
                  .range([0,width])
                  .nice();
 
+  var yScale = d3.scaleLinear()
+                 .domain([0,.6])
+                 .range([height,0])
+                 .nice();
 
+//************************* create updated bins ******************************//
   var binMaker=d3.histogram()
                  .domain(xScale.domain())
                  .thresholds(xScale.ticks(10));
@@ -180,11 +180,8 @@ var updateChart = function(data,day)
     var percentage = function(d){
         return d.length / quizGrades.length;};
 
-  var yScale = d3.scaleLinear()
-                 .domain([0,1])
-                 .range([height,0])
-                 .nice();
 
+//****************** bind new data and update the rectangles *****************//
   svg.selectAll("rect")
      .data(bins)
      .transition()
@@ -200,27 +197,4 @@ var updateChart = function(data,day)
      .attr("fill", "blue")
      .attr("transform","translate("+ margins.left + "," + margins.top + ")");
 
-     var yAxisOld = svg.select("#yAxis");
-
-     yAxisOld.remove()
-              .transition();
-
-     var yAxis = d3.axisLeft(yScale);
-        svg.append("g")
-        .classed(yAxis,true)
-        .call(yAxis)
-        .attr("transform","translate(" + margins.left + "," + margins.top + ")")
-        .attr("id","yAxis");
-
-     var xAxis = d3.axisBottom(xScale);
-        svg.append("g")
-        .classed(xAxis,true)
-        .call(xAxis)
-        .attr("transform","translate(" + margins.left + "," + (margins.top + height) + ")")
-        .attr("id", "xAxis");
-
 };
-
-// how do we efficiently create 38 buttons for each day?
-// how do we pass a function with a day number and make it display the right histogram?
-// how do we deal days where there weren't quizzes?
