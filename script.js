@@ -41,6 +41,9 @@ var dayNumbers = howManyDays[0].quizes;
 var numbers = d3.range(dayNumbers.length)
                 .map(function(d) {return dayNumbers[d].day});
 
+var dayData = d3.select("h3");
+dayData.text("Quiz Grades for today: " + quizGrades);
+
 //******************** create the buttons **********************************//
 var buttonLand = d3.select("body");
 
@@ -112,7 +115,7 @@ buttonLand.selectAll("button")
         .classed(yAxis,true)
         .call(yAxis)
         .attr("transform","translate(" + margins.left + "," + margins.top + ")")
-        .attr("id", "yAxis");
+        .attr("id", "yAxis")
 
      var xAxis = d3.axisBottom(xScale);
         svg.append("g")
@@ -133,10 +136,11 @@ var updateChart = function(data,day,dayButton)
   var quizGrades = d3.range(data.length)
                      .map(function(d) {return data[d].quizes[day].grade;});
 
-//********************** change title for day being displayed **************//
+//***************** change titles for day data being displayed **************//
     var dayHeader = d3.select("h2");
     dayHeader.text("Day " + dayButton);
-
+    var dayData = d3.select("h3");
+    dayData.text("Quiz Grades for today: " + quizGrades);
 //*********************** screen basics ***********************************//
   var screen =
   {
@@ -181,7 +185,7 @@ var updateChart = function(data,day,dayButton)
         return d.length / quizGrades.length;};
 
 
-//****************** bind new data and update the rectangles *****************//
+//****************** bind new data and draw the rectangles *****************//
   svg.selectAll("rect")
      .data(bins)
      .transition()
