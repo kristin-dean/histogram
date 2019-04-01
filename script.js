@@ -77,7 +77,7 @@ buttonLand.selectAll("button")
                  .nice();
 
   var yScale = d3.scaleLinear()
-                 .domain([0,.6])
+                 .domain([0,.5])
                  .range([height,0])
                  .nice();
 
@@ -169,7 +169,7 @@ var updateChart = function(data,day,dayButton)
                  .nice();
 
   var yScale = d3.scaleLinear()
-                 .domain([0,.6])
+                 .domain([0,.5])
                  .range([height,0])
                  .nice();
 
