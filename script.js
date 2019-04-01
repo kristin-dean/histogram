@@ -1,243 +1,204 @@
-
-
-//******************************read data file*****************************//
-var gradesP = d3.json("classData.json");
+/******************************read data file*****************************//
+var gradesP = d3.json("data.json");
 
 //*****************************make promise********************************//
 gradesP.then(function(d)
 {
-  drawChart(d,0);
-  console.log("Initialization working.");
-//updateChart(d,5);
-//console.log("Update working.");
+  drawInitial(d,0);
 },
 function(err)
 {
   console.log(err);
 });
 
-
-//********************* draw initial chart *********************************//
-var drawChart = function(d,penguin)
+//**********************initialize histogram******************************//
+var drawInitial = function(data,day)
+{
+  var screen =
   {
-    d[penguin].quizes.forEach(function(d) {d.type="Quiz"});
-    d[penguin].final.forEach(function(d) {d.type="Final"});
-    d[penguin].test.forEach(function(d) {d.type="Test"});
-    d[penguin].homework.forEach(function(d) {d.type="Homework"});
-    var finalG = d[penguin].final;
-    list2 = finalG.concat(d[penguin].homework);
-    list3 = list2.concat(d[penguin].quizes);
-    allGrades = list3.concat(d[penguin].test);
-    allGrades.forEach(function(d) {d.percent=(d.grade / d.max)*100});
-    console.log(allGrades);
+    height:400,
+    width:400
+  };
 
-var pengPics = d3.range(d.length)
-                    .map(function(x) {return d[x].picture;});
-console.log(pengPics);
-var penguinIsland = d3.select("body");
+  var svg = d3.select("svg")
+              .attr("height", screen.height + 20)
+              .attr("width", screen.width);
 
-penguinIsland.selectAll("img")
-             .data(d)
-             .enter()
-             .append("img")
-             .attr("src", function(d,i) {
-              return d})
-             .attr("alt", function(d,i) {
-               return "Penguin " + i;})
-             .attr("id", function(d,i) {
-               return i;})
-             .attr("height", 100)
-             .attr("width", 100)
-             .on("click", function(d,i){
-               var order = d.id;
-               updateChart(d,order);});
-
-var dayHeader = d3.select("h1");
-dayHeader.text("Semester Grades for Penguin " + penguin);
-
-     var screen =
-      {
-        width:1000,
-        height:450
-      };
-      var svg = d3.select("svg")
-        .attr("width",screen.width)
-        .attr("height",screen.height);
-
-      var margins =
-      {
-        top:10,
-        bottom:40,
-        left:45,
-        right:145
-      };
-
-      var width = screen.width - margins.left - margins.right;
-      var height = screen.height - margins.top - margins.bottom;
-      var colors = d3.scaleOrdinal(d3.schemeSet1);
-      var xScale = d3.scaleLinear()
-        .domain([0,41])
-        .range([0,width]);
-      var yScale = d3.scaleLinear()
-        .domain([0,100])
-        .range([height,0]);
-      var plotLand = svg.append("g")
-          .attr("id","plotLand")
-          .classed("plot",true)
-          .attr("transform","translate("+margins.left+","+margins.top+")");
-      var students = plotLand.selectAll("g")
-          .attr("id", "students")
-          .data(allGrades)
-          .enter()
-          .append("g")
-      students.selectAll("circle")
-          .data(allGrades)
-          .enter()
-          .append("circle")
-          .attr("cx",function(d,i)
-          {
-            return xScale(d.day);
-          })
-          .attr("cy",function(d){return yScale(d.percent);})
-          .attr("r", function(d) {
-            if (d.type == "Quiz") {
-              return 6;}
-            else if (d.type == "Homework") {
-              return 6;}
-            else if (d.type == "Test") {
-              return 12;}
-            else if (d.type == "Final") {
-              return 15;}})
-          .attr("fill", function(d) {
-            return colors(d.type);})
-        .append("title")
-        .text(function(d)
-          {return "This "+d.type+" grade is a " + d.percent;});
-
-          var xAxis  = d3.axisBottom(xScale);
-
-        svg.append("g")
-          .classed(xAxis,true)
-          .call(xAxis)
-          .attr("transform","translate("+margins.left+","
-          +(margins.top+ height + 15)+")"
-        );
-/**************************** LEGEND *************************************/
-var gradeTypes = ['Quiz', 'Homework', 'Test', 'Final'];
-
-      var legend = svg.append("g")
-        .classed("legend",true)
-        .attr("transform","translate("+
-        (width + margins.left) + "," + margins.top+")");
-        var legendLines = legend.selectAll("g")
-            .data(gradeTypes)
-            .enter()
-            .append("g")
-            .classed("legendLines",true)
-            .attr("transform",function(d,i)
-            {
-              return "translate(" + 50 + "," + (i*20 +5) +")";}
-          )
-        legendLines.append("rect")
-                .attr("x", 0)
-                .attr("y", function(d,i){return i*20;})
-                .attr("width", 15)
-                .attr("height", 15)
-                .attr("fill", function(d) {
-                  return colors(d);});
-
-        legendLines.append("text")
-              .attr("x",20)
-              .attr("y",function(d,i){return i*20+14;})
-              .text(function(d){return d;});
-
-//************************* Y AXIS ******************************************//
-      var yAxis  = d3.axisLeft(yScale);
-        svg.append("g")
-          .classed(yAxis,true)
-          .call(yAxis)
-          .attr("transform","translate("+(margins.left-20)+","
-          + 7 +")");
-  }
-
-
-
-//**************************** UPDATE CHART ********************************//
-var updateChart = function(d,penguin)
+  var margins =
   {
-      d[penguin].quizes.forEach(function(d) {d.type="Quiz"});
-      d[penguin].final.forEach(function(d) {d.type="Final"});
-      d[penguin].test.forEach(function(d) {d.type="Test"});
-      d[penguin].homework.forEach(function(d) {d.type="Homework"});
-      var finalG = d[penguin].final;
-      list2 = finalG.concat(d[penguin].homework);
-      list3 = list2.concat(d[penguin].quizes);
-      allGrades = list3.concat(d[penguin].test);
-      allGrades.forEach(function(d) {d.percent=(d.grade / d.max)*100});
-      console.log(allGrades);
+    left:40,
+    right:10,
+    top:10,
+    bottom:10
+  };
 
-      var dayHeader = d3.select("h1");
-      dayHeader.text("Semester Grades for Penguin " + penguin);
+//*******************working to get an array of all quiz days***************//
+var quizGrades = d3.range(data.length)
+                   .map(function(d) {return data[d].quizes[day].grade;});
+var howManyDays = d3.range(data.length)
+                    .map(function(d) {return data[d]});
+var dayNumbers = howManyDays[0].quizes;
+var numbers = d3.range(dayNumbers.length)
+                .map(function(d) {return dayNumbers[d].day});
 
-       var screen =
-        {
-          width:100,
-          height:450
-        };
-        var svg = d3.select("svg")
-          .attr("width",screen.width)
-          .attr("height",screen.height);
+var dayData = d3.select("h3");
+dayData.text("Quiz Grades for today: " + quizGrades);
 
-        var margins =
-        {
-          top:10,
-          bottom:40,
-          left:45,
-          right:145
-        };
+//******************** create the buttons **********************************//
+var buttonLand = d3.select("body");
 
-        var width = screen.width - margins.left - margins.right;
-        var height = screen.height - margins.top - margins.bottom;
-        var colors = d3.scaleOrdinal(d3.schemeSet1);
-        var xScale = d3.scaleLinear()
-          .domain([0,41])
-          .range([0,width]);
-        var yScale = d3.scaleLinear()
-          .domain([0,100])
-          .range([height,0]);
-        var plotLand = svg.selectAll("#plotLand")
-            .classed("plot",true)
-            .attr("transform","translate("+margins.left+","+margins.top+")");
-        var students = plotLand.selectAll("#students")
-            .data(allGrades)
-            .transition();
-        students.selectAll("circle")
-            .data(allGrades)
-            .transition()
-            .attr("cx",function(d,i)
-            {
-              return xScale(d.day);
-            })
-            .attr("cy",function(d){return yScale(d.percent);})
-            .attr("r", function(d) {
-              if (d.type == "Quiz") {
-                return 6;}
-              else if (d.type == "Homework") {
-                return 6;}
-              else if (d.type == "Test") {
-                return 12;}
-              else if (d.type == "Final") {
-                return 15;}})
-            .attr("fill", function(d) {
-              return colors(d.type);});
+buttonLand.selectAll("button")
+          .data(numbers)
+          .enter()
+          .append("button")
+          .attr("label", function(d,i) {
+            return "Day " + d})
+          .text(function(d) {
+            return "Day " + d})
+          .on("click", function(d,i){
+          if(d<15) {
+              var day = (d-1);
+            }
+            else if (d>15 && d<30) {
+              var day = (d-2);
+            }
+            else if (d>30 && d<42) {
+              var day = (d-3);
+            }
+            updateChart(data,day,d)});
+//************************** foundations of chart ******************************//
 
-              var title = d3.selectAll("title");
-              title.remove()
-              svg.selectAll("circle")
-              .append("title")
-              .text(function(d)
-                {return "This "+d.type+" grade is a " + d.percent;});
+  var width = screen.width - margins.left - margins.right;
+  var height = screen.height - margins.top - margins.bottom;
 
-            var xAxis  = d3.axisBottom(xScale);
+  var xScale = d3.scaleLinear()
+                 .domain([0,11])
+                 .range([0,width])
+                 .nice();
 
-}
+  var yScale = d3.scaleLinear()
+                 .domain([0,.6])
+                 .range([height,0])
+                 .nice();
+
+//****************************histogram bins******************************//
+  var binMaker=d3.histogram()
+                 .domain(xScale.domain())
+                 .thresholds(xScale.ticks(10));
+
+  var bins = binMaker(quizGrades);
+
+  var percentage = function(d){
+      return d.length / quizGrades.length;
+  };
+
+//**************************** make rectangles*****************************//
+  svg.selectAll("rect")
+     .data(bins)
+     .enter()
+     .append("rect")
+     .attr("x", function(d) {
+       return xScale(d.x0);})
+     .attr("y", function (d) {
+       return yScale(percentage(d));})
+     .attr("width", function(d){
+       return (width / bins.length)-.2;})
+     .attr("height", function(d){
+       return height - yScale(percentage(d));})
+     .attr("fill", "blue")
+     .attr("transform","translate("+ margins.left + "," + margins.top + ")");
+
+//************************** create axes *******************************//
+
+     var yAxis = d3.axisLeft(yScale);
+        svg.append("g")
+        .classed(yAxis,true)
+        .call(yAxis)
+        .attr("transform","translate(" + margins.left + "," + margins.top + ")")
+        .attr("id", "yAxis")
+
+     var xAxis = d3.axisBottom(xScale);
+        svg.append("g")
+        .classed(xAxis,true)
+        .call(xAxis)
+        .attr("transform","translate(" + margins.left + "," + (margins.top + height) + ")")
+        .attr("id", "xAxis");
+};
+
+
+
+
+
+
+//************************update histogram for specific day******************//
+var updateChart = function(data,day,dayButton)
+{
+  var quizGrades = d3.range(data.length)
+                     .map(function(d) {return data[d].quizes[day].grade;});
+
+//***************** change titles for day data being displayed **************//
+    var dayHeader = d3.select("h2");
+    dayHeader.text("Day " + dayButton);
+    var dayData = d3.select("h3");
+    dayData.text("Quiz Grades for today: " + quizGrades);
+//*********************** screen basics ***********************************//
+  var screen =
+  {
+    height:400,
+    width:400
+  };
+
+  var svg = d3.select("svg")
+              .attr("height", screen.height + 20)
+              .attr("width", screen.width);
+
+  var margins =
+  {
+    left:40,
+    right:10,
+    top:10,
+    bottom:10
+  };
+
+  var width = screen.width - margins.left - margins.right;
+  var height = screen.height - margins.top - margins.bottom;
+
+  var xScale = d3.scaleLinear()
+                 .domain([0,11])
+                 .range([0,width])
+                 .nice();
+
+  var yScale = d3.scaleLinear()
+                 .domain([0,.6])
+                 .range([height,0])
+                 .nice();
+
+//************************* create updated bins ******************************//
+  var binMaker=d3.histogram()
+                 .domain(xScale.domain())
+                 .thresholds(xScale.ticks(10));
+
+  var bins = binMaker(quizGrades);
+
+
+    var percentage = function(d){
+        return d.length / quizGrades.length;};
+
+
+//****************** bind new data and draw the rectangles *****************//
+  svg.selectAll("rect")
+     .data(bins)
+     .transition()
+     .duration(1000)
+     .attr("x", function(d) {
+        return xScale(d.x0);})
+     .attr("y", function (d) {
+        return yScale(percentage(d));})
+     .attr("width", function(d){
+        return (width / bins.length)-.2;})
+     .attr("height", function(d){
+        return height - yScale(percentage(d));})
+     .attr("fill", "blue")
+     .attr("transform","translate("+ margins.left + "," + margins.top + ")");
+
+};
