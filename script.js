@@ -125,11 +125,6 @@ buttonLand.selectAll("button")
         .attr("id", "xAxis");
 };
 
-
-
-
-
-
 //************************update histogram for specific day******************//
 var updateChart = function(data,day,dayButton)
 {
@@ -141,6 +136,7 @@ var updateChart = function(data,day,dayButton)
     dayHeader.text("Day " + dayButton);
     var dayData = d3.select("h3");
     dayData.text("Quiz Grades for today: " + quizGrades);
+  
 //*********************** screen basics ***********************************//
   var screen =
   {
@@ -183,7 +179,6 @@ var updateChart = function(data,day,dayButton)
 
     var percentage = function(d){
         return d.length / quizGrades.length;};
-
 
 //****************** bind new data and draw the rectangles *****************//
   svg.selectAll("rect")
